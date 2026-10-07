@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Lomba Cerdas Cermat Matematika SMA Online</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- KaTeX CDN for Math Rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+    <style>
+        @keyframes pulse-fast {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .animate-pulse-fast {
+            animation: pulse-fast 0.6s infinite;
+        }
+        /* Custom scrollbar for leaderboard */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen font-sans flex flex-col justify-between">
+
+    <!-- Header / Navbar -->
+    <header class="bg-slate-800 border-b border-slate-700 py-3 px-4 md:px-6 shadow-lg">
+        <div class="max-w-5xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div class="flex items-center space-x-3 w-full sm:w-auto justify-between sm:justify-start">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-indigo-600 text-white px-3 py-1.5 rounded-lg font-bold text-xl shadow-md">LCC</div>
+                    <div>
+                        <h1 class="font-bold text-base md:text-lg leading-tight text-indigo-300">Cerdas Cermat Matematika</h1>
+                        <p class="text-xs text-slate-400">Tingkat SMA/Sederajat - FMIPA Unram Style</p>
+                    </div>
+                </div>
+                <div id="cloud-status" class="flex items-center space-x-1.5 text-xs bg-emerald-500/10 text-emerald-400 px-2.5 py-1 rounded-full border border-emerald-500/20">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                    <span>Online</span>
+                </div>
+            </div>
+            
+            <div id="stats-bar" class="hidden flex space-x-4 text-xs md:text-sm font-semibold w-full sm:w-auto justify-end">
+                <div class="bg-slate-700/80 px-3 py-1.5 rounded-lg border border-slate-600">
+                    Skor: <span id="score-display" class="text-yellow-400 text-base ml-1">0</span>
+                </div>
+                <div class="bg-slate-700/80 px-3 py-1.5 rounded-lg border border-slate-600">
+                    Streak: <span id="streak-display" class="text-emerald-400 text-base ml-1">0🔥</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-5xl mx-auto w-full p-4 flex-grow flex items-center justify-center my-4">
+
+        <!-- START SCREEN -->
+        <div id="screen-start" class="grid grid-cols-1 md:grid-cols-12 gap-6 w-full">
+            <!-- Left Info Panel -->
+            <div class="md:col-span-7 bg-slate-800 p-6 md:p-8 rounded-2xl shadow-2xl border border-slate-700 flex flex-col justify-between">
+                <div>
+                    <div class="w-16 h-16 bg-indigo-600/20 text-indigo-400 rounded-2xl flex items-center justify-center mb-4 border border-indigo-500/30">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    </div>
+                    <h2 class="text-2xl font-extrabold text-white mb-2">Simulasi LCC Matematika Online</h2>
+                    <p class="text-slate-300 text-sm mb-6 leading-relaxed">
+                        Uji kecepatan dan ketepatan penalaran matematika kamu secara online! Tekan tombol <span class="font-semibold text-yellow-400">BUZZER</span> secepat mungkin untuk membuka pilihan jawaban sebelum waktu habis.
+                    </p>
+
+                    <div class="space-y-4 mb-6">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase mb-2">Nama Peserta / Tim</label>
+                            <input type="text" id="player-name" placeholder="Contoh: Tim SMA 1 Mataram" class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium">
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="startGame()" class="w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg hover:shadow-indigo-500/25 active:scale-95 text-base flex items-center justify-center space-x-2">
+                    <span>Mulai Pertandingan Online</span>
+                    <span>🚀</span>
+                </button>
+            </div>
+
+            <!-- Right Online Leaderboard Panel -->
+            <div class="md:col-span-5 bg-slate-800/90 p-6 rounded-2xl shadow-2xl border border-slate-700 flex flex-col h-[400px]">
+                <div class="flex items-center justify-between mb-4 border-b border-slate-700 pb-3">
+                    <h3 class="font-bold text-slate-200 text-base flex items-center space-x-2">
+                        <span>🏆</span>
+                        <span>Papan Skor Global</span>
+                    </h3>
+                    <span class="text-xs text-indigo-400 font-medium">Real-Time</span>
+                </div>
+                
+                <div id="leaderboard-list" class="flex-grow overflow-y-auto space-y-2 pr-1">
+                    <div class="text-center text-slate-500 text-sm py-12">Memuat Papan Skor Online...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- GAMEPLAY SCREEN -->
+        <div id="screen-game" class="hidden w-full max-w-3xl space-y-6">
+            
+            <!-- Progress & Timer Bar -->
+            <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 flex justify-between items-center shadow-md">
+                <div class="text-sm font-medium text-slate-300">
+                    Soal <span id="q-index" class="text-indigo-400 font-bold">1</span> dari <span id="q-total">10</span>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Sisa Waktu:</span>
+                    <div id="timer-badge" class="bg-amber-500/20 text-amber-300 border border-amber-500/30 font-mono text-xl font-bold px-3 py-1 rounded-lg">
+                        <span id="timer-display">30</span>s
+                    </div>
+                </div>
+            </div>
+
+            <!-- Question Card -->
+            <div class="bg-slate-800 p-6 md:p-8 rounded-2xl border border-slate-700 shadow-xl space-y-4">
+                <div class="flex justify-between items-center text-xs font-semibold text-indigo-400 uppercase tracking-wider">
+                    <span id="q-category">Elemen / Sub-Materi</span>
+                </div>
+                <div id="q-text" class="text-lg md:text-xl font-medium text-slate-100 leading-relaxed min-h-[80px]">
+                    <!-- Question rendered here -->
+                </div>
+            </div>
+
+            <!-- Buzzer Area (Before Buzzed) -->
+            <div id="buzzer-container" class="text-center py-4">
+                <button id="btn-buzzer" onclick="pressBuzzer()" class="w-full md:w-2/3 mx-auto py-6 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 active:scale-95 text-white font-extrabold text-2xl rounded-2xl shadow-2xl border-4 border-red-400/50 transition-all animate-pulse-fast flex flex-col items-center justify-center space-y-1">
+                    <span>🔔 TEKAN BUZZER!</span>
+                    <span class="text-xs font-normal text-red-200">(Atau Tekan Tombol [SPASI] di Keyboard)</span>
+                </button>
+            </div>
+
+            <!-- Answer Options (Hidden until Buzzer pressed) -->
+            <div id="options-container" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Dynamic Answer Buttons -->
+            </div>
+
+            <!-- Explanation Box (Shows after answer) -->
+            <div id="explanation-box" class="hidden bg-slate-800/90 border border-indigo-500/40 p-6 rounded-2xl space-y-3">
+                <div id="feedback-header" class="font-bold text-lg"></div>
+                <div id="explanation-text" class="text-sm text-slate-300 leading-relaxed"></div>
+                <button onclick="nextQuestion()" class="mt-2 w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-xl transition-all shadow-md">
+                    Lanjut ke Soal Berikutnya ➔
+                </button>
+            </div>
+
+        </div>
+
+        <!-- RESULT SCREEN -->
+        <div id="screen-result" class="hidden grid grid-cols-1 md:grid-cols-12 gap-6 w-full max-w-4xl">
+            <div class="md:col-span-7 bg-slate-800 p-8 rounded-2xl shadow-2xl border border-slate-700 text-center space-y-6">
+                <div class="w-20 h-20 bg-yellow-500/20 text-yellow-400 rounded-full flex items-center justify-center mx-auto border border-yellow-500/30">
+                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white">Pertandingan Selesai!</h2>
+                    <p id="result-player-name" class="text-slate-400 text-sm font-medium mt-1"></p>
+                </div>
+
+                <div class="bg-slate-900/80 p-6 rounded-xl border border-slate-700/80 grid grid-cols-2 gap-4">
+                    <div>
+                        <div class="text-xs text-slate-400 uppercase font-semibold">Total Skor</div>
+                        <div id="final-score" class="text-3xl font-extrabold text-yellow-400 mt-1">0</div>
+                    </div>
+                    <div>
+                        <div class="text-xs text-slate-400 uppercase font-semibold">Akurasi Jawaban</div>
+                        <div id="final-accuracy" class="text-3xl font-extrabold text-emerald-400 mt-1">0%</div>
+                    </div>
+                </div>
+
+                <div id="badge-container" class="p-4 bg-indigo-950/40 border border-indigo-500/30 rounded-xl text-sm text-indigo-200">
+                    <!-- Predikat Juara -->
+                </div>
+
+                <div id="saving-status" class="text-xs text-indigo-400 font-medium">
+                    ☁️ Menyiapkan penyimpanan skor ke papan online...
+                </div>
+
+                <button onclick="restartGame()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg">
+                    Main Lagi 🔄
+                </button>
+            </div>
+
+            <div class="md:col-span-5 bg-slate-800 p-6 rounded-2xl shadow-2xl border border-slate-700 flex flex-col h-[480px]">
+                <h3 class="font-bold text-slate-200 text-base mb-3 pb-2 border-b border-slate-700">🏆 Papan Skor Global Terkini</h3>
+                <div id="result-leaderboard-list" class="flex-grow overflow-y-auto space-y-2 pr-1">
+                    <div class="text-center text-slate-500 text-sm py-12">Memuat Papan Skor...</div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center py-4 text-xs text-slate-500 border-t border-slate-800">
+        Disusun Berdasarkan Kisi-Kisi LCC Matematika SMA - Universitas Mataram (Online Cloud Edition)
+    </footer>
+
+    <!-- Firebase Cloud SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global configuration variables
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'lcc-matematika-app';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "",
+            authDomain: "lcc-matematika.firebaseapp.com",
+            projectId: "lcc-matematika",
+            storageBucket: "lcc-matematika.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456789:web:abcdef"
+        };
+
+        let db = null;
+        let auth = null;
+        let currentUser = null;
+
+        try {
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+        } catch (e) {
+            console.error("Error initializing Firebase:", e);
+        }
+
+        async function initAuth() {
+            if (!auth) return;
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    const userCred = await signInWithCustomToken(auth, __initial_auth_token);
+                    currentUser = userCred.user;
+                } else {
+                    const userCred = await signInAnonymously(auth);
+                    currentUser = userCred.user;
+                }
+                listenToLeaderboard();
+            } catch (err) {
+                console.error("Auth error:", err);
+            }
+        }
+
+        // Listen to public leaderboard updates (RULE 1 & RULE 2 compliant)
+        function listenToLeaderboard() {
+            if (!db) return;
+            const leaderboardRef = collection(db, 'artifacts', appId, 'public', 'data', 'leaderboard');
+            
+            onSnapshot(leaderboardRef, (snapshot) => {
+                const scores = [];
+                snapshot.forEach((doc) => {
+                    scores.push({ id: doc.id, ...doc.data() });
+                });
+                
+                // Sort in memory (Rule 2)
+                scores.sort((a, b) => b.score - a.score);
+                updateLeaderboardUI(scores);
+            }, (error) => {
+                console.error("Snapshot error:", error);
+            });
+        }
+
+        function updateLeaderboardUI(scores) {
+            const listEl = document.getElementById('leaderboard-list');
+            const resultListEl = document.getElementById('result-leaderboard-list');
+
+            if (scores.length === 0) {
+                const emptyHTML = '<div class="text-center text-slate-500 text-xs py-8">Belum ada skor tersimpan. Jadilah yang pertama!</div>';
+                if (listEl) listEl.innerHTML = emptyHTML;
+                if (resultListEl) resultListEl.innerHTML = emptyHTML;
+                return;
+            }
+
+            let html = '';
+            scores.slice(0, 10).forEach((item, index) => {
+                let medal = `#${index + 1}`;
+                if (index === 0) medal = '🥇';
+                if (index === 1) medal = '🥈';
+                if (index === 2) medal = '🥉';
+
+                html += `
+                    <div class="flex items-center justify-between p-2.5 bg-slate-900/60 border border-slate-700/50 rounded-xl text-xs hover:border-slate-600 transition-all">
+                        <div class="flex items-center space-x-2.5 truncate">
+                            <span class="font-bold w-6 text-center text-slate-300">${medal}</span>
+                            <div class="truncate">
+                                <div class="font-semibold text-slate-200 truncate">${escapeHTML(item.name || 'Anonim')}</div>
+                                <div class="text-[10px] text-slate-400">Akurasi: ${item.accuracy || 0}%</div>
+                            </div>
+                        </div>
+                        <div class="text-right shrink-0">
+                            <span class="font-extrabold text-yellow-400 text-sm">${item.score || 0}</span>
+                            <span class="text-[10px] text-slate-400 block">pts</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            if (listEl) listEl.innerHTML = html;
+            if (resultListEl) resultListEl.innerHTML = html;
+        }
+
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, 
+                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+            );
+        }
+
+        async function saveScoreToOnline(name, score, accuracy) {
+            const statusEl = document.getElementById('saving-status');
+            if (!db || !currentUser) {
+                if (statusEl) statusEl.textContent = '❌ Tidak dapat terhubung ke cloud database.';
+                return;
+            }
+
+            try {
+                if (statusEl) statusEl.textContent = '☁️ Menyimpan skor ke Papan Skor Online...';
+                const leaderboardRef = collection(db, 'artifacts', appId, 'public', 'data', 'leaderboard');
+                await addDoc(leaderboardRef, {
+                    uid: currentUser.uid,
+                    name: name,
+                    score: score,
+                    accuracy: accuracy,
+                    timestamp: Date.now()
+                });
+                if (statusEl) statusEl.textContent = '✅ Skor berhasil tersimpan di Papan Online!';
+            } catch (err) {
+                console.error("Failed to save score:", err);
+                if (statusEl) statusEl.textContent = '❌ Gagal menyimpan skor online.';
+            }
+        }
+
+        // Expose functions to window
+        window.saveScoreToOnline = saveScoreToOnline;
+        
+        // Start authentication
+        initAuth();
+    </script>
+
+    <!-- Audio Web API Synthesizer -->
+    <script>
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if (type === 'buzzer') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(220, audioCtx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.3);
+            } else if (type === 'correct') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
+                osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2);
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.4);
+            } else if (type === 'wrong') {
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(110, audioCtx.currentTime + 0.15);
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.35);
+            }
+        }
+    </script>
+
+    <!-- Main Game Logic -->
+    <script>
+        const questionsData = [
+            {
+                category: "Bilangan Real (Sifat Perpangkatan)",
+                question: "Berapakah hasil sederhana dari perhitungan berikut: $2^5 \\times 8^{-1} \\div 4^2$ ?",
+                options: [
+                    { text: "$\\frac{1}{2}$", correct: false },
+                    { text: "$\\frac{1}{4}$", correct: true },
+                    { text: "$1$", correct: false },
+                    { text: "$2$", correct: false }
+                ],
+                explanation: "Sederhanakan dengan basis $2$:\n$$2^5 \\times (2^3)^{-1} \\div (2^2)^2 = 2^5 \\times 2^{-3} \\div 2^4 = 2^{5 - 3 - 4} = 2^{-2} = \\frac{1}{4}$$"
+            },
+            {
+                category: "Aljabar (Sistem Persamaan Linear Multivariabel)",
+                question: "Diketahui sistem persamaan linear 3 variabel:\n1) $x + y + z = 12$\n2) $2x + y - z = 7$\n3) $x - y + z = 4$\nBerapakah nilai dari $x$?",
+                options: [
+                    { text: "$2$", correct: false },
+                    { text: "$3$", correct: false },
+                    { text: "$4$", correct: true },
+                    { text: "$5$", correct: false }
+                ],
+                explanation: "Kurangkan pers (1) dan (3): $(x+y+z) - (x-y+z) = 12 - 4 \\implies 2y = 8 \\implies y = 4$.\nJumlahkan pers (2) dan (3): $(2x+y-z) + (x-y+z) = 7 + 4 \\implies 3x = 11 \\implies x = 4$."
+            },
+            {
+                category: "Aljabar (Fungsi Komposisi)",
+                question: "Diketahui $f(x) = 2x + 3$ dan $g(x) = x^2 - 1$. Nilai dari $(f \\circ g)(3)$ adalah...",
+                options: [
+                    { text: "$15$", correct: false },
+                    { text: "$17$", correct: false },
+                    { text: "$19$", correct: true },
+                    { text: "$21$", correct: false }
+                ],
+                explanation: "Hitung nilai $g(3) = 3^2 - 1 = 8$.\nKemudian substitusi ke $f(x)$: $(f \\circ g)(3) = f(g(3)) = f(8) = 2(8) + 3 = 19$."
+            },
+            {
+                category: "Aljabar (Barisan dan Deret Aritmetika)",
+                question: "Suku ke-3 suatu barisan aritmetika adalah $10$ dan suku ke-7 adalah $22$. Berapakah beda ($b$) barisan tersebut?",
+                options: [
+                    { text: "$2$", correct: false },
+                    { text: "$3$", correct: true },
+                    { text: "$4$", correct: false },
+                    { text: "$5$", correct: false }
+                ],
+                explanation: "Gunakan rumus selisih suku $U_7 - U_3 = (7 - 3)b = 4b$.\nMaka $22 - 10 = 4b \\implies 12 = 4b \\implies b = 3$."
+            },
+            {
+                category: "Geometri (Teorema Pythagoras & Keliling)",
+                question: "Sebuah segitiga siku-siku memiliki panjang alas $6\\text{ cm}$ dan tinggi $8\\text{ cm}$. Berapakah keliling segitiga tersebut?",
+                options: [
+                    { text: "$20\\text{ cm}$", correct: false },
+                    { text: "$22\\text{ cm}$", correct: false },
+                    { text: "$24\\text{ cm}$", correct: true },
+                    { text: "$30\\text{ cm}$", correct: false }
+                ],
+                explanation: "Sisi miring $c = \\sqrt{6^2 + 8^2} = \\sqrt{36 + 64} = 10\\text{ cm}$.\nKeliling = $6 + 8 + 10 = 24\\text{ cm}$."
+            },
+            {
+                category: "Geometri (Transformasi Translasi)",
+                question: "Koordinat bayangan titik $A(3, -5)$ jika ditranslasikan oleh $T = \\begin{pmatrix} -2 \\\\ 4 \\end{pmatrix}$ adalah...",
+                options: [
+                    { text: "$(1, -1)$", correct: true },
+                    { text: "$(5, -9)$", correct: false },
+                    { text: "$(-1, 1)$", correct: false },
+                    { text: "$(1, -9)$", correct: false }
+                ],
+                explanation: "Aplikasi rumus translasi: $A'(x', y') = (x + a, y + b) = (3 + (-2), -5 + 4) = (1, -1)$."
+            },
+            {
+                category: "Geometri & Pengukuran (Volume Kubus)",
+                question: "Berapakah volume kubus yang memiliki panjang diagonal ruang $3\\sqrt{3}\\text{ cm}$?",
+                options: [
+                    { text: "$9\\text{ cm}^3$", correct: false },
+                    { text: "$18\\text{ cm}^3$", correct: false },
+                    { text: "$27\\text{ cm}^3$", correct: true },
+                    { text: "$81\\text{ cm}^3$", correct: false }
+                ],
+                explanation: "Diagonal ruang kubus = $s\\sqrt{3} = 3\\sqrt{3} \\implies s = 3\\text{ cm}$.\nVolume kubus = $s^3 = 3^3 = 27\\text{ cm}^3$."
+            },
+            {
+                category: "Trigonometri (Perbandingan Trigonometri)",
+                question: "Jika $\\sin A = \\frac{3}{5}$ dengan $A$ merupakan sudut lancip, berapakah nilai dari $\\tan A$?",
+                options: [
+                    { text: "$\\frac{3}{5}$", correct: false },
+                    { text: "$\\frac{4}{5}$", correct: false },
+                    { text: "$\\frac{3}{4}$", correct: true },
+                    { text: "$\\frac{4}{3}$", correct: false }
+                ],
+                explanation: "Sisi depan = $3$, sisi miring = $5$. Dengan Pythagoras, sisi samping = $\\sqrt{5^2 - 3^2} = 4$.\nMaka $\\tan A = \\frac{\\text{depan}}{\\text{samping}} = \\frac{3}{4}$."
+            },
+            {
+                category: "Data dan Peluang (Ukuran Pemusatan Data)",
+                question: "Diberikan data tunggal berikut: $4, 6, 8, 5, 7, 9, 3$. Berapakah nilai median dari data tersebut?",
+                options: [
+                    { text: "$5$", correct: false },
+                    { text: "$6$", correct: true },
+                    { text: "$7$", correct: false },
+                    { text: "$8$", correct: false }
+                ],
+                explanation: "Urutkan data dari terkecil ke terbesar: $3, 4, 5, 6, 7, 8, 9$.\nMedian (suku tengah) dari 7 data adalah data ke-4, yaitu $6$."
+            },
+            {
+                category: "Data dan Peluang (Aturan Peluang Dadu)",
+                question: "Dua buah dadu dilempar bersamaan satu kali. Berapakah peluang munculnya mata dadu berjumlah $10$?",
+                options: [
+                    { text: "$\\frac{1}{6}$", correct: false },
+                    { text: "$\\frac{1}{9}$", correct: false },
+                    { text: "$\\frac{1}{12}$", correct: true },
+                    { text: "$\\frac{1}{18}$", correct: false }
+                ],
+                explanation: "Pasangan mata dadu berjumlah 10: $(4,6), (5,5), (6,4)$ $\\implies 3$ kejadian.\nJumlah seluruh ruang sampel $n(S) = 6 \\times 6 = 36$.\nPeluang = $\\frac{3}{36} = \\frac{1}{12}$."
+            }
+        ];
+
+        // Game State Variables
+        let playerName = "";
+        let currentQIndex = 0;
+        let score = 0;
+        let streak = 0;
+        let correctCount = 0;
+        let timer = null;
+        let timeLeft = 30;
+        let isBuzzed = false;
+
+        // Elements
+        const screenStart = document.getElementById('screen-start');
+        const screenGame = document.getElementById('screen-game');
+        const screenResult = document.getElementById('screen-result');
+        const statsBar = document.getElementById('stats-bar');
+
+        const scoreDisplay = document.getElementById('score-display');
+        const streakDisplay = document.getElementById('streak-display');
+        const qIndex = document.getElementById('q-index');
+        const qTotal = document.getElementById('q-total');
+        const timerDisplay = document.getElementById('timer-display');
+        const qCategory = document.getElementById('q-category');
+        const qText = document.getElementById('q-text');
+
+        const buzzerContainer = document.getElementById('buzzer-container');
+        const optionsContainer = document.getElementById('options-container');
+        const explanationBox = document.getElementById('explanation-box');
+        const feedbackHeader = document.getElementById('feedback-header');
+        const explanationText = document.getElementById('explanation-text');
+
+        function renderMath() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false}
+                ],
+                throwOnError : false
+            });
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && !screenGame.classList.contains('hidden') && !isBuzzed) {
+                e.preventDefault();
+                pressBuzzer();
+            }
+        });
+
+        function startGame() {
+            const input = document.getElementById('player-name').value.trim();
+            playerName = input || "Peserta Cerdas Cermat";
+            
+            currentQIndex = 0;
+            score = 0;
+            streak = 0;
+            correctCount = 0;
+
+            scoreDisplay.textContent = score;
+            streakDisplay.textContent = `${streak}🔥`;
+            qTotal.textContent = questionsData.length;
+
+            screenStart.classList.add('hidden');
+            screenResult.classList.add('hidden');
+            screenGame.classList.remove('hidden');
+            statsBar.classList.remove('hidden');
+
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            isBuzzed = false;
+            clearInterval(timer);
+            timeLeft = 30;
+
+            const q = questionsData[currentQIndex];
+            qIndex.textContent = currentQIndex + 1;
+            qCategory.textContent = q.category;
+            qText.innerHTML = q.question.replace(/\n/g, '<br>');
+
+            buzzerContainer.classList.remove('hidden');
+            optionsContainer.classList.add('hidden');
+            explanationBox.classList.add('hidden');
+
+            timerDisplay.textContent = timeLeft;
+            startTimer();
+            renderMath();
+        }
+
+        function startTimer() {
+            timer = setInterval(() => {
+                timeLeft--;
+                timerDisplay.textContent = timeLeft;
+
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    handleTimeOut();
+                }
+            }, 1000);
+        }
+
+        function pressBuzzer() {
+            if (isBuzzed) return;
+            isBuzzed = true;
+            clearInterval(timer);
+            playSound('buzzer');
+
+            buzzerContainer.classList.add('hidden');
+            optionsContainer.classList.remove('hidden');
+
+            const q = questionsData[currentQIndex];
+            optionsContainer.innerHTML = '';
+
+            const optionLabels = ['A', 'B', 'C', 'D'];
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "p-4 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-xl text-left font-medium text-slate-100 flex items-center space-x-3 transition-all hover:border-indigo-500 shadow-md active:scale-95";
+                btn.innerHTML = `<span class="bg-indigo-600 text-white font-bold w-8 h-8 rounded-lg flex items-center justify-center shrink-0">${optionLabels[idx]}</span> <span class="flex-grow">${opt.text}</span>`;
+                btn.onclick = () => checkAnswer(opt.correct);
+                optionsContainer.appendChild(btn);
+            });
+
+            renderMath();
+        }
+
+        function handleTimeOut() {
+            isBuzzed = true;
+            playSound('wrong');
+            streak = 0;
+            streakDisplay.textContent = `${streak}🔥`;
+
+            buzzerContainer.classList.add('hidden');
+            optionsContainer.classList.add('hidden');
+            
+            showExplanation(false, "⏰ Waktu Habis!", "Kamu tidak menekan buzzer sebelum waktu habis.");
+        }
+
+        function checkAnswer(isCorrect) {
+            optionsContainer.classList.add('hidden');
+            const q = questionsData[currentQIndex];
+
+            if (isCorrect) {
+                playSound('correct');
+                correctCount++;
+                streak++;
+                const timeBonus = timeLeft * 10;
+                const streakBonus = streak * 20;
+                const pointsGained = 100 + timeBonus + streakBonus;
+                score += pointsGained;
+
+                scoreDisplay.textContent = score;
+                streakDisplay.textContent = `${streak}🔥`;
+
+                showExplanation(true, "✅ JAWABAN BENAR!", `Selamat! +${pointsGained} Poin (Termasuk bonus waktu & streak).\n\n${q.explanation}`);
+            } else {
+                playSound('wrong');
+                streak = 0;
+                streakDisplay.textContent = `${streak}🔥`;
+
+                showExplanation(false, "❌ JAWABAN KURANG TEPAT", `Tetap semangat!\n\n${q.explanation}`);
+            }
+        }
+
+        function showExplanation(isCorrect, title, details) {
+            explanationBox.classList.remove('hidden');
+            
+            if (isCorrect) {
+                feedbackHeader.className = "font-bold text-lg text-emerald-400";
+            } else {
+                feedbackHeader.className = "font-bold text-lg text-rose-400";
+            }
+
+            feedbackHeader.textContent = title;
+            explanationText.innerHTML = details.replace(/\n/g, '<br>');
+            renderMath();
+        }
+
+        function nextQuestion() {
+            currentQIndex++;
+            if (currentQIndex < questionsData.length) {
+                loadQuestion();
+            } else {
+                endGame();
+            }
+        }
+
+        function endGame() {
+            screenGame.classList.add('hidden');
+            screenResult.classList.remove('hidden');
+
+            document.getElementById('result-player-name').textContent = `Peserta: ${playerName}`;
+            document.getElementById('final-score').textContent = score;
+
+            const accuracy = Math.round((correctCount / questionsData.length) * 100);
+            document.getElementById('final-accuracy').textContent = `${accuracy}%`;
+
+            const badgeContainer = document.getElementById('badge-container');
+            if (accuracy >= 90) {
+                badgeContainer.innerHTML = "🏆 <strong class='text-yellow-300'>JUARA 1 (MEDALI EMAS)</strong><br>Luar biasa! Penguasaan materi dan kecepatan respon kamu sangat memukau!";
+            } else if (accuracy >= 70) {
+                badgeContainer.innerHTML = "🥈 <strong class='text-slate-200'>FINALIS UNGGULAN (MEDALI PERAK)</strong><br>Performa hebat! Kamu memiliki dasar matematika yang sangat kokoh.";
+            } else {
+                badgeContainer.innerHTML = "📜 <strong class='text-amber-400'>PESERTA POTENSIAL</strong><br>Hasil yang baik! Pelajari kembali materi pembahasan untuk meningkatkan kecepatan.";
+            }
+
+            // Automatic cloud score save
+            if (window.saveScoreToOnline) {
+                window.saveScoreToOnline(playerName, score, accuracy);
+            }
+        }
+
+        function restartGame() {
+            startGame();
+        }
+    </script>
+</body>
+</html>
